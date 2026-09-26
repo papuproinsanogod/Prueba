@@ -1,0 +1,371 @@
+hola
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esperón | Experiencia Musical</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: all 0.4s ease;
+        }
+
+        body {
+            background-color: #08080c;
+            color: #ffffff;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .artist-title {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #a0a0b0;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        /* Navegador de Canciones (Tabs) */
+        .song-nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 35px;
+            max-width: 600px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Contenedor Interactivo Principal */
+        .stage {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            padding: 35px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .song-card {
+            display: none;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .song-card.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .song-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .song-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .song-desc {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        /* Botones de Acción (Letra / Nota) */
+        .action-btns {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .btn-toggle:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        /* Paneles Plegables */
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            text-align: left;
+            margin-bottom: 15px;
+            padding: 0 15px;
+        }
+
+        .collapsible-content.open {
+            max-height: 300px;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .lyrics-text {
+            font-style: italic;
+            color: #d1d5db;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            white-space: pre-line;
+        }
+
+        .note-text {
+            color: #ffd700;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Estilos Temáticos Dinámicos */
+
+        /* 1. SOLARE */
+        body.theme-solare { background-color: #120a02; }
+        .theme-solare .stage { border: 1px solid rgba(255, 170, 0, 0.3); box-shadow: 0 0 40px rgba(255, 140, 0, 0.2); }
+        .theme-solare .nav-btn.active { background: #ff9900; color: #000; box-shadow: 0 0 15px rgba(255, 153, 0, 0.5); }
+        .theme-solare .song-name { color: #ffaa00; text-shadow: 0 0 20px rgba(255, 170, 0, 0.4); }
+        .theme-solare .song-desc { color: #ffe6b3; }
+
+        /* 2. LUMA */
+        body.theme-luma { background-color: #020b14; }
+        .theme-luma .stage { border: 1px solid rgba(0, 217, 255, 0.3); box-shadow: 0 0 40px rgba(0, 217, 255, 0.2); }
+        .theme-luma .nav-btn.active { background: #00d9ff; color: #000; box-shadow: 0 0 15px rgba(0, 217, 255, 0.5); }
+        .theme-luma .song-name { color: #00d9ff; text-shadow: 0 0 20px rgba(0, 217, 255, 0.4); }
+        .theme-luma .song-desc { color: #b3f0ff; }
+
+        /* 3. TRISTELLA */
+        body.theme-tristella { background-color: #0f0314; }
+        .theme-tristella .stage { border: 1px solid rgba(224, 64, 251, 0.3); box-shadow: 0 0 40px rgba(224, 64, 251, 0.2); }
+        .theme-tristella .nav-btn.active { background: #e040fb; color: #000; box-shadow: 0 0 15px rgba(224, 64, 251, 0.5); }
+        .theme-tristella .song-name { color: #e040fb; text-shadow: 0 0 20px rgba(224, 64, 251, 0.4); }
+        .theme-tristella .song-desc { color: #f5b3ff; }
+
+        /* 4. ECLIPSIS */
+        body.theme-eclipsis { background-color: #050508; }
+        .theme-eclipsis .stage { border: 1px solid rgba(138, 43, 226, 0.3); box-shadow: 0 0 40px rgba(138, 43, 226, 0.2); }
+        .theme-eclipsis .nav-btn.active { background: #8a2be2; color: #fff; box-shadow: 0 0 15px rgba(138, 43, 226, 0.5); }
+        .theme-eclipsis .song-name { color: #a768e6; text-shadow: 0 0 20px rgba(138, 43, 226, 0.4); }
+        .theme-eclipsis .song-desc { color: #d1b3ff; }
+
+        /* Reproductor Embed */
+        .player-container {
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        footer {
+            margin-top: auto;
+            padding-top: 40px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="theme-solare">
+
+    <header>
+        <h1 class="artist-title">Esperón</h1>
+        <p class="subtitle">Selecciona una canción para transformar el ambiente</p>
+    </header>
+
+    <!-- Botones de Interfaz por Canción -->
+    <nav class="song-nav">
+        <button class="nav-btn active" onclick="switchSong('solare', event)">☀️ Solare</button>
+        <button class="nav-btn" onclick="switchSong('luma', event)">🌙 Luma</button>
+        <button class="nav-btn" onclick="switchSong('tristella', event)">✨ Tristella</button>
+        <button class="nav-btn" onclick="switchSong('eclipsis', event)">🌑 Eclipsis</button>
+    </nav>
+
+    <main class="stage">
+
+        <!-- INTERFAZ 1: SOLARE -->
+        <div id="solare" class="song-card active">
+            <div class="song-icon">☀️</div>
+            <h2 class="song-name">SOLARE</h2>
+            <p class="song-desc">
+                Cálida, resplandeciente y llena de energía. Una composición pensada para transmitir la fuerza y luz del sol.
+            </p>
+            
+            <div class="action-btns">
+                <button class="btn-toggle" onclick="toggleSection('solare-lyrics')">📜 Ver Letra</button>
+                <button class="btn-toggle" onclick="toggleSection('solare-note')">💌 Nota Especial</button>
+            </div>
+
+            <div id="solare-lyrics" class="collapsible-content">
+                <p class="lyrics-text">[Escribe aquí la letra de Solare...]</p>
+            </div>
+
+            <div id="solare-note" class="collapsible-content">
+                <p class="note-text">✨ Esta canción me recuerda a toda la energía y luz que transmites siempre.</p>
+            </div>
+
+            <div class="player-container">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <!-- INTERFAZ 2: LUMA -->
+        <div id="luma" class="song-card">
+            <div class="song-icon">🌙</div>
+            <h2 class="song-name">LUMA</h2>
+            <p class="song-desc">
+                Suave y serena como la luz de la luna. Una atmósfera nocturna que envuelve con sus melodías brillantes.
+            </p>
+
+            <div class="action-btns">
+                <button class="btn-toggle" onclick="toggleSection('luma-lyrics')">📜 Ver Letra</button>
+                <button class="btn-toggle" onclick="toggleSection('luma-note')">💌 Nota Especial</button>
+            </div>
+
+            <div id="luma-lyrics" class="collapsible-content">
+                <p class="lyrics-text">[Escribe aquí la letra de Luma...]</p>
+            </div>
+
+            <div id="luma-note" class="collapsible-content">
+                <p class="note-text">🌙 Para acompañar tus momentos de tranquilidad y paz.</p>
+            </div>
+
+            <div class="player-container">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <!-- INTERFAZ 3: TRISTELLA -->
+        <div id="tristella" class="song-card">
+            <div class="song-icon">✨</div>
+            <h2 class="song-name">TRISTELLA</h2>
+            <p class="song-desc">
+                Un viaje melancólico y brillante entre constelaciones. Ritmos envolventes con un toque estelar inolvidable.
+            </p>
+
+            <div class="action-btns">
+                <button class="btn-toggle" onclick="toggleSection('tristella-lyrics')">📜 Ver Letra</button>
+                <button class="btn-toggle" onclick="toggleSection('tristella-note')">💌 Nota Especial</button>
+            </div>
+
+            <div id="tristella-lyrics" class="collapsible-content">
+                <p class="lyrics-text">[Escribe aquí la letra de Tristella...]</p>
+            </div>
+
+            <div id="tristella-note" class="collapsible-content">
+                <p class="note-text">⭐ Sé lo mucho que te gusta este tema, así que no podía faltar aquí.</p>
+            </div>
+
+            <div class="player-container">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+
+        <!-- INTERFAZ 4: ECLIPSIS -->
+        <div id="eclipsis" class="song-card">
+            <div class="song-icon">🌑</div>
+            <h2 class="song-name">ECLIPSIS</h2>
+            <p class="song-desc">
+                Donde la luz y la sombra se cruzan. Una pieza profunda, enigmática y llena de contraste.
+            </p>
+
+            <div class="action-btns">
+                <button class="btn-toggle" onclick="toggleSection('eclipsis-lyrics')">📜 Ver Letra</button>
+                <button class="btn-toggle" onclick="toggleSection('eclipsis-note')">💌 Nota Especial</button>
+            </div>
+
+            <div id="eclipsis-lyrics" class="collapsible-content">
+                <p class="lyrics-text">[Escribe aquí la letra de Eclipsis...]</p>
+            </div>
+
+            <div id="eclipsis-note" class="collapsible-content">
+                <p class="note-text">🌑 Una mezcla perfecta entre el misterio y la intensidad.</p>
+            </div>
+
+            <div class="player-container">
+                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4cOdK2wGLETKBW3PvgPWqT" width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        Regalo especial • Un universo para la música de Esperón
+    </footer>
+
+    <script>
+        function switchSong(songId, evt) {
+            document.body.className = 'theme-' + songId;
+
+            const cards = document.querySelectorAll('.song-card');
+            cards.forEach(card => card.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Cerrar paneles desplegados al cambiar de canción
+            const collapsibles = document.querySelectorAll('.collapsible-content');
+            collapsibles.forEach(c => c.classList.remove('open'));
+
+            document.getElementById(songId).classList.add('active');
+            evt.target.classList.add('active');
+        }
+
+        function toggleSection(id) {
+            const element = document.getElementById(id);
+            element.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
